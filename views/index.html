@@ -1,0 +1,120 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+    <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+    <script src="semantic/semantic.min.js"></script>
+    <title>Nginx Manager</title>
+</head>
+<style>
+    #main {
+        position: relative;
+    }
+
+    #left {
+        height: 100%;
+        width: 250px;
+    }
+
+    #right {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 250px;
+    }
+</style>
+<body>
+    <div id="main" class="ui grid">
+        <div id="left" class="four wide column">
+            <div class="ui search">
+                <div class="ui icon input">
+                    <input class="prompt" type="text" placeholder="搜索或创建站点...">
+                    <i class="search icon"></i>
+                </div>
+                <div class="results"></div>
+            </div>
+            <div class="ui list secondary vertical menu">
+                <div class="active item">
+                    <i class="linkify icon"></i>
+                    <div class="content">
+                        <div class="header">www.cloudhua.com</div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="linkify icon"></i>
+                    <div class="content">
+                        <div class="header">git.cloudhua.com</div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="linkify icon"></i>
+                    <div class="content">
+                        <div class="header">docker.cloudhua.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="right" class="twelve wide column">
+            <div class="ui segment">
+                站点: <span id="sitename">www.cloudhua.com</span>
+            </div>
+            <div class="ui three buttons">
+                <div id="save-cfg" class="ui basic green button">保存配置</div>
+                <div id="test-cfg" class="ui basic red button">测试配置</div>
+                <div id="reload-cfg" class="ui basic yellow button">加载配置</div>
+            </div>
+            <div class="ui segment">
+                <pre contenteditable="true"><code>
+                server {
+                    listen 80;
+                    resolver 114.114.114.114;
+                    server_name sz.cloudhua.com;
+                    include https.conf;
+            
+                    location / {
+                        proxy_pass http://192.168.122.1:9091;
+                        proxy_set_header Host $http_host;
+                        proxy_set_header X-Forwarded-For $cip;
+                        client_body_buffer_size 9M;
+                        client_max_body_size 4000M;
+                        proxy_max_temp_file_size 8m;
+                        proxy_buffers 1024 4k;
+                        proxy_read_timeout 300;
+                        access_log /var/log/nginx/unode_acc.log main;
+                    }
+                    location ~* /fop/convert {
+                        proxy_buffers 2 4k;
+                        proxy_busy_buffers_size 4k;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_set_header X-Forwarded-Host  $http_host;
+                        proxy_pass http://127.0.0.1:10002;
+                        # proxy_pass http://paas.cloudhua.com;
+                        add_header Access-Control-Allow-Origin "*";
+                    }
+                    location ~* /fop/imageprocessing {
+                        proxy_busy_buffers_size 4k;
+                        proxy_buffers 2 4k;
+                        proxy_pass http://127.0.0.1:8800;
+                        add_header Access-Control-Allow-Origin "*";
+                    }
+                }
+                </code></pre>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var sites = [
+        {title: 'www.cloudhua.com'},
+        {title: 'git.cloudhua.com'},
+        {title: 'docker.cloudhua.com'},
+    ];
+
+    $('.ui.search').search({source: sites});
+</script>
+</html>
