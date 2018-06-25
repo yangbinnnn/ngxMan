@@ -4,10 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
-    <script
-    src="https://code.jquery.com/jquery-3.1.1.min.js"
-    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-    crossorigin="anonymous"></script>
+    <script src="semantic/jquery-3.1.1.min.js"></script>
     <script src="semantic/semantic.min.js"></script>
     <title>Nginx Manager</title>
 </head>
@@ -33,7 +30,7 @@
         <div id="left" class="four wide column">
             <div class="ui search">
                 <div class="ui icon input">
-                    <input class="prompt" type="text" placeholder="搜索或创建站点...">
+                    <input class="prompt" type="text" placeholder="搜索站点...">
                     <i class="search icon"></i>
                 </div>
                 <div class="results"></div>
@@ -60,8 +57,13 @@
             </div>
         </div>
         <div id="right" class="twelve wide column">
-            <div class="ui segment">
+            <div class="ui clearing segment">
                 站点: <span id="sitename">www.cloudhua.com</span>
+                <div id="create-site" class="ui basic green button" style="float: right;">新建站点</div>
+                <div class="ui input" style="float:right">
+                    <input type="text" placeholder="abc.xyz.com">
+                </div>
+
             </div>
             <div class="ui three buttons">
                 <div id="save-cfg" class="ui basic green button">保存配置</div>
