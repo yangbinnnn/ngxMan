@@ -27,7 +27,7 @@
 </style>
 <body>
     <div id="main" class="ui grid">
-        <div id="left" class="four wide column">
+        <div id="left" class="three wide column">
             <div class="ui search">
                 <div class="ui icon input">
                     <input class="prompt" type="text" placeholder="搜索站点...">
@@ -35,8 +35,8 @@
                 </div>
                 <div class="results"></div>
             </div>
-            <div class="ui list secondary vertical menu">
-                <div class="active item">
+            <div id="sites" class="ui list secondary vertical menu">
+                <div class="item active">
                     <i class="linkify icon"></i>
                     <div class="content">
                         <div class="header">www.cloudhua.com</div>
@@ -58,10 +58,10 @@
         </div>
         <div id="right" class="twelve wide column">
             <div class="ui clearing segment">
-                站点: <span id="sitename">www.cloudhua.com</span>
+                站点: <span id="currentsite">www.cloudhua.com</span>
                 <div id="create-site" class="ui basic green button" style="float: right;">新建站点</div>
                 <div class="ui input" style="float:right">
-                    <input type="text" placeholder="abc.xyz.com">
+                    <input id="new-site" type="text" placeholder="abc.xyz.com">
                 </div>
 
             </div>
@@ -71,7 +71,7 @@
                 <div id="reload-cfg" class="ui basic yellow button">加载配置</div>
             </div>
             <div class="ui segment">
-                <pre contenteditable="true"><code>
+                <pre contenteditable="true"><code id="ngx-cfg-view">
                 server {
                     listen 80;
                     resolver 114.114.114.114;
@@ -117,6 +117,105 @@
         {title: 'docker.cloudhua.com'},
     ];
 
-    $('.ui.search').search({source: sites});
+    $('.ui.search').search({
+        source: sites,
+        onSelect: function(result, resp) {
+            var site = result["title"]
+            showCfg(site)
+        }
+    });
+
+    var sitesMap = new Map();
+    sitesMap.set("www.cloudhua.com", `
+                    location / {
+                        proxy_pass http://192.168.122.1:9091;
+                        proxy_set_header Host $http_host;
+                        proxy_set_header X-Forwarded-For $cip;
+                        client_body_buffer_size 9M;
+                        client_max_body_size 4000M;
+                        proxy_max_temp_file_size 8m;
+                        proxy_buffers 1024 4k;
+                        proxy_read_timeout 300;
+                        access_log /var/log/nginx/unode_acc.log main;
+                    }
+                }`)
+
+    sitesMap.set("git.cloudhua.com", `
+                    location ~* /fop/convert {
+                        proxy_buffers 2 4k;
+                        proxy_busy_buffers_size 4k;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_set_header X-Forwarded-Host  $http_host;
+                        proxy_pass http://127.0.0.1:10002;
+                        add_header Access-Control-Allow-Origin "*";
+                    }
+               `)
+    sitesMap.set("docker.cloudhua.com", `
+                    location ~* /fop/imageprocessing {
+                        proxy_busy_buffers_size 4k;
+                        proxy_buffers 2 4k;
+                        proxy_pass http://127.0.0.1:8800;
+                        add_header Access-Control-Allow-Origin "*";
+                    }
+                `)
+
+    document.getElementById("create-site").onclick = createSite
+    function createSite(e) {
+        var site = document.getElementById("new-site").value
+        if (!isValidDomain(site)) {
+            alert("无效的域名\n示例:abc.xyz.com")
+        }
+    }
+
+    function saveCfg() {
+
+    }
+
+    function testCfg() {
+
+    }
+
+    function reloadCfg() {
+
+    }
+
+    function showCfg(site) {
+        document.getElementById("ngx-cfg-view").innerHTML = sitesMap.get(site)
+    }
+
+    var siteList = document.getElementById("sites")
+    siteList.onclick = function(e) {
+        if (e.target.className.toLowerCase() === "header") {
+            var site = e.target.innerHTML
+            document.getElementById("currentsite").innerHTML = site
+            showCfg(site)
+        }
+    };
+
+    $('.ui.menu div.item')
+        .on('click', function() {
+            $(this).addClass('active').siblings().removeClass('active');
+        }
+    );
+
+    function isValidDomain(v) {
+        if (typeof v !== 'string') return false
+
+        var parts = v.split('.')
+        if (parts.length <= 2) return false
+
+        var tld = parts.pop()
+        var tldRegex = /^[a-zA-Z0-9]+$/gi
+
+        if (!tldRegex.test(tld)) return false
+
+        var isValid = parts.every(function(host) {
+            var hostRegex = /^(?!:\/\/)([a-zA-Z0-9]+|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])$/gi;
+            return hostRegex.test(host)
+        })
+
+        return isValid
+    }
+
 </script>
 </html>
