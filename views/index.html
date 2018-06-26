@@ -37,22 +37,13 @@
             </div>
             <div id="sites" class="ui list secondary vertical menu">
                 <div class="item active">
-                    <i class="linkify icon"></i>
-                    <div class="content">
-                        <div class="header">www.cloudhua.com</div>
-                    </div>
+                    <i class="site linkify icon" style="float: left;">www.cloudhua.com</i>
                 </div>
                 <div class="item">
-                    <i class="linkify icon"></i>
-                    <div class="content">
-                        <div class="header">git.cloudhua.com</div>
-                    </div>
+                    <i class="site linkify icon" style="float: left;">git.cloudhua.com</i>
                 </div>
                 <div class="item">
-                    <i class="linkify icon"></i>
-                    <div class="content">
-                        <div class="header">docker.cloudhua.com</div>
-                    </div>
+                    <i class="site linkify icon" style="float: left;">docker.cloudhua.com</i>
                 </div>
             </div>
         </div>
@@ -71,41 +62,7 @@
                 <div id="reload-cfg" class="ui basic yellow button">加载配置</div>
             </div>
             <div class="ui segment">
-                <pre contenteditable="true"><code id="ngx-cfg-view">
-                server {
-                    listen 80;
-                    resolver 114.114.114.114;
-                    server_name sz.cloudhua.com;
-                    include https.conf;
-            
-                    location / {
-                        proxy_pass http://192.168.122.1:9091;
-                        proxy_set_header Host $http_host;
-                        proxy_set_header X-Forwarded-For $cip;
-                        client_body_buffer_size 9M;
-                        client_max_body_size 4000M;
-                        proxy_max_temp_file_size 8m;
-                        proxy_buffers 1024 4k;
-                        proxy_read_timeout 300;
-                        access_log /var/log/nginx/unode_acc.log main;
-                    }
-                    location ~* /fop/convert {
-                        proxy_buffers 2 4k;
-                        proxy_busy_buffers_size 4k;
-                        proxy_set_header X-Forwarded-Proto $scheme;
-                        proxy_set_header X-Forwarded-Host  $http_host;
-                        proxy_pass http://127.0.0.1:10002;
-                        # proxy_pass http://paas.cloudhua.com;
-                        add_header Access-Control-Allow-Origin "*";
-                    }
-                    location ~* /fop/imageprocessing {
-                        proxy_busy_buffers_size 4k;
-                        proxy_buffers 2 4k;
-                        proxy_pass http://127.0.0.1:8800;
-                        add_header Access-Control-Allow-Origin "*";
-                    }
-                }
-                </code></pre>
+                <pre contenteditable="true"><code id="ngx-cfg-view"></code></pre>
             </div>
         </div>
     </div>
@@ -159,42 +116,49 @@
                     }
                 `)
 
-    document.getElementById("create-site").onclick = createSite
+    $('#create-site').on('click', createSite)
     function createSite(e) {
-        var site = document.getElementById("new-site").value
+        var site = $('#new-site').val()
         if (!isValidDomain(site)) {
             alert("无效的域名\n示例:abc.xyz.com")
         }
+        alert("OK:" + site)
     }
 
+    $('#save-cfg').on('click', saveCfg)
     function saveCfg() {
-
+        var site = $('#currentsite').html()
+        var siteData = $('#ngx-cfg-view').html()
+        if (siteData.length === 0) {
+            alert("站点内容为空")
+            return
+        }
+        $.post('http://127.0.0.1:10003/saveSite/' + encodeURIComponent(site), siteData, function() {
+            alert('success')
+        }).fail(function() {
+            alert('fail')
+        })
     }
 
+    $('#test-cfg').on('click', testCfg)
     function testCfg() {
 
     }
 
+    $('#reload-cfg').on('click', reloadCfg)
     function reloadCfg() {
 
     }
 
     function showCfg(site) {
-        document.getElementById("ngx-cfg-view").innerHTML = sitesMap.get(site)
+        $('#ngx-cfg-view').html(sitesMap.get(site))
     }
 
-    var siteList = document.getElementById("sites")
-    siteList.onclick = function(e) {
-        if (e.target.className.toLowerCase() === "header") {
-            var site = e.target.innerHTML
-            document.getElementById("currentsite").innerHTML = site
-            showCfg(site)
-        }
-    };
-
-    $('.ui.menu div.item')
-        .on('click', function() {
+    $('#sites .item').on('click', function() {
             $(this).addClass('active').siblings().removeClass('active');
+            var site = $(this).children(".site")[0].innerHTML
+            $('#currentsite').html(site)
+            showCfg(site)
         }
     );
 
