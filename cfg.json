@@ -1,0 +1,6 @@
+{
+    "httpaddr": "0.0.0.0:10000",
+    "ngxbin": "/usr/local/nginx/sbin/nginx",
+    "ngxMainConfig": "/usr/local/nginx/conf/nginx.conf",
+    "ngxSiteConfigDir": "playground"
+}
