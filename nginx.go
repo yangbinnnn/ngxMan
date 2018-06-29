@@ -34,8 +34,11 @@ func (ngx *Nginx) Info() (output []byte) {
 
 func (ngx *Nginx) Reload() (output []byte) {
 	cmd := []string{ngx.bin, "-s", "reload"}
-	_, out := xlib.CmdExec(cmd, 3*time.Second)
-	return []byte(out)
+	ok, out := xlib.CmdExec(cmd, 3*time.Second)
+	if ok {
+		return []byte("success")
+	}
+	return []byte(fmt.Sprintf("%s, %s", "failed", out))
 }
 
 func (ngx *Nginx) TestConfig() (output []byte) {

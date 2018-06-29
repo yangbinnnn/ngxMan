@@ -61,11 +61,20 @@ function saveCfg() {
 }
 
 function testCfg() {
-
+    $.get('testsite', function(data) {
+        alert(data)
+    }).fail(function(data) {
+        alert(data)
+    })
 }
 
 function reloadCfg() {
-
+    $.get('reloadsite', function(data) {
+        console.log(data)
+        alert(data)
+    }).fail(function(data) {
+        alert(data)
+    })
 }
 
 function showCfg(site) {
@@ -75,6 +84,7 @@ function showCfg(site) {
         alert('fail')
     })
 }
+
 function isValidDomain(v) {
     if (typeof v !== 'string') return false
 

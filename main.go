@@ -57,6 +57,8 @@ func InitHttp() {
 	e.GET("/ping", ping)
 	e.GET("/sitecontent", siteContent)
 	e.POST("/savesite", saveSite)
+	e.GET("testsite", testSite)
+	e.GET("reloadsite", reloadSite)
 }
 
 func ping(c echo.Context) error {
@@ -105,6 +107,16 @@ func saveSite(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "success")
+}
+
+func testSite(c echo.Context) error {
+	out := ngx.TestConfig()
+	return c.JSON(http.StatusOK, string(out))
+}
+
+func reloadSite(c echo.Context) error {
+	out := ngx.Reload()
+	return c.JSON(http.StatusOK, string(out))
 }
 
 func init() {
