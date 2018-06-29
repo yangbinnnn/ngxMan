@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	Bin           string `json:"ngxbin"`
-	MainConfig    string `json:"ngxMainConfig"`
-	SiteConfigDir string `json:"ngxSiteConfigDir"`
-	HTTPADDR      string `json:"httpaddr"`
+	Bin           string   `json:"ngxbin"`
+	MainConfig    string   `json:"ngxMainConfig"`
+	SiteConfigDir string   `json:"ngxSiteConfigDir"`
+	AllowedPorts  []string `json:"ngxAllowedPorts"`
+	HTTPADDR      string   `json:"httpaddr"`
 }
 
 var GloabConfig *Config

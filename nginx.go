@@ -2,9 +2,11 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/yangbinnnn/xlib"
@@ -17,10 +19,11 @@ type Nginx struct {
 	bin           string
 	mainConfig    string
 	siteConfigDir string
+	allowedPorts  []string
 }
 
-func NewNginx(bin, mainConfig, siteConfigDir string) *Nginx {
-	return &Nginx{bin, mainConfig, siteConfigDir}
+func NewNginx(bin, mainConfig, siteConfigDir string, allowedPorts []string) *Nginx {
+	return &Nginx{bin, mainConfig, siteConfigDir, allowedPorts}
 }
 
 func (ngx *Nginx) Info() (output []byte) {
@@ -81,6 +84,26 @@ func (ngx *Nginx) DeleteSite(site string) error {
 
 // create and modify site
 func (ngx *Nginx) SaveSite(site string, data []byte) error {
+	err := ngx.checkPort(data)
+	if err != nil {
+		return err
+	}
 	p := path.Join(ngx.siteConfigDir, site)
 	return ioutil.WriteFile(p, data, 0666)
+}
+
+// check site
+func (ngx *Nginx) checkPort(data []byte) error {
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "listen") {
+			for _, port := range ngx.allowedPorts {
+				if strings.Contains(line, port+";") {
+					return nil
+				}
+			}
+			return fmt.Errorf("port not allowed, allowd port is %v", ngx.allowedPorts)
+		}
+	}
+	return nil
 }

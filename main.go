@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -41,7 +42,7 @@ func cmd() {
 }
 
 func InitNgx() {
-	ngx = NewNginx(GloabConfig.Bin, GloabConfig.MainConfig, GloabConfig.SiteConfigDir)
+	ngx = NewNginx(GloabConfig.Bin, GloabConfig.MainConfig, GloabConfig.SiteConfigDir, GloabConfig.AllowedPorts)
 }
 
 func InitHttp() {
@@ -54,6 +55,8 @@ func InitHttp() {
 	e.Static("/static", "views")
 	e.GET("/", index)
 	e.GET("/ping", ping)
+	e.GET("/sitecontent", siteContent)
+	e.POST("/savesite", saveSite)
 }
 
 func ping(c echo.Context) error {
@@ -71,11 +74,37 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func index(c echo.Context) error {
 	sites, err := ngx.SiteConfig()
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "")
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
-		"Sites": sites,
+		"Sites":   sites,
+		"NgxInfo": string(ngx.Info()),
 	})
+}
+
+func siteContent(c echo.Context) error {
+	site := c.QueryParam("site")
+	content, err := ngx.SiteConfigContent(site)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"content": string(content),
+	})
+}
+
+func saveSite(c echo.Context) error {
+	site := c.QueryParam("site")
+	content, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+	err = ngx.SaveSite(site, content)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, "success")
 }
 
 func init() {

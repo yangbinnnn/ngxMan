@@ -53,10 +53,10 @@ function saveCfg() {
         alert("站点内容为空")
         return
     }
-    $.post('http://127.0.0.1:10003/saveSite/' + encodeURIComponent(site), siteData, function() {
+    $.post('savesite?site=' + encodeURIComponent(site), siteData, function() {
         alert('success')
-    }).fail(function() {
-        alert('fail')
+    }).fail(function(data) {
+        alert(data['responseText'])
     })
 }
 
@@ -69,7 +69,11 @@ function reloadCfg() {
 }
 
 function showCfg(site) {
-    $('#ngx-cfg-view').html(sitesMap.get(site))
+    $.get('sitecontent?site=' + encodeURIComponent(site), function(data) {
+        $('#ngx-cfg-view').html(data['content'])
+    }).fail(function() {
+        alert('fail')
+    })
 }
 function isValidDomain(v) {
     if (typeof v !== 'string') return false

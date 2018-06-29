@@ -1,6 +1,7 @@
 {
     "httpaddr": "0.0.0.0:10000",
-    "ngxbin": "/usr/local/nginx/sbin/nginx",
-    "ngxMainConfig": "/usr/local/nginx/conf/nginx.conf",
-    "ngxSiteConfigDir": "playground"
+    "ngxbin": "/usr/local/openresty/nginx/sbin/nginx",
+    "ngxMainConfig": "/usr/local/openresty/nginx/conf/conf.d/ngx.conf",
+    "ngxSiteConfigDir": "playground",
+    "ngxAllowedPorts": ["80", "443"]
 }
