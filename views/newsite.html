@@ -1,8 +1,8 @@
 server {
     listen 80;
     server_name {{.Site}};
-    access_log /var/log/nginx/logs/{{.Site}}.access.log
-    error_log /var/log/nginx/logs/{{.Site}}.error.log
+    access_log /var/log/nginx/logs/{{.Site}}.access.log;
+    error_log /var/log/nginx/logs/{{.Site}}.error.log;
 
     location / {
         proxy_pass SERVER_ADDR;
