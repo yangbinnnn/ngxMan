@@ -1,63 +1,85 @@
+
 var sites = [
-    {title: 'www.cloudhua.com'},
-    {title: 'git.cloudhua.com'},
-    {title: 'docker.cloudhua.com'},
 ];
 
-var sitesMap = new Map();
-sitesMap.set("www.cloudhua.com", `
-                location / {
-                    proxy_pass http://192.168.122.1:9091;
-                    proxy_set_header Host $http_host;
-                    proxy_set_header X-Forwarded-For $cip;
-                    client_body_buffer_size 9M;
-                    client_max_body_size 4000M;
-                    proxy_max_temp_file_size 8m;
-                    proxy_buffers 1024 4k;
-                    proxy_read_timeout 300;
-                    access_log /var/log/nginx/unode_acc.log main;
-                }
-            }`)
-
-sitesMap.set("git.cloudhua.com", `
-                location ~* /fop/convert {
-                    proxy_buffers 2 4k;
-                    proxy_busy_buffers_size 4k;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_set_header X-Forwarded-Host  $http_host;
-                    proxy_pass http://127.0.0.1:10002;
-                    add_header Access-Control-Allow-Origin "*";
-                }
-            `)
-sitesMap.set("docker.cloudhua.com", `
-                location ~* /fop/imageprocessing {
-                    proxy_busy_buffers_size 4k;
-                    proxy_buffers 2 4k;
-                    proxy_pass http://127.0.0.1:8800;
-                    add_header Access-Control-Allow-Origin "*";
-                }
-            `)
+function alert(data) {
+    $('#alert').html(data)
+    $('.alert-ui.ui.tiny.modal').modal('show');
+}
 
 function createSite(e) {
     var site = $('#new-site').val()
     if (!isValidDomain(site)) {
         alert("无效的域名\n示例:abc.xyz.com")
-    }
-    alert("OK:" + site)
-}
-
-function saveCfg() {
-    var site = $('#currentsite').html()
-    var siteData = $('#ngx-cfg-view').html()
-    if (siteData.length === 0) {
-        alert("站点内容为空")
         return
     }
-    $.post('savesite?site=' + encodeURIComponent(site), siteData, function() {
-        alert('success')
-    }).fail(function(data) {
-        alert(data['responseText'])
+    exsit = false
+    $.each(sites, function(idx, item) {
+        if (item['title'] === site) {
+            exsit = true
+        }
     })
+    if (exsit) {
+        alert("站点已存在")
+        return
+    }
+    $.get('createSite?site=' + encodeURIComponent(site), function(data) {
+        $('#currentsite').html(site)
+        $('#ngx-cfg-view').html(data)
+        sites.push({title: site})
+        $('#sites').append('<div class="item"><i class="site linkify icon" style="float: left;">' + site + '</i></div>')
+    })
+}
+
+function saveCfg(newname) {
+    var site = $('#currentsite').html()
+    var siteData = $('#ngx-cfg-view').html()
+    if (site === '') {
+        alert("未选择站点")
+        return false
+    }
+    if (siteData.length === 0) {
+        alert("站点内容为空")
+        return false
+    }
+    if (!isValidDomain(site)) {
+        alert("无效的域名\n示例:abc.xyz.com")
+        return
+    }
+
+    var ok = true
+    var verifyName = site
+    if (typeof newname === 'string') {
+        verifyName = newname
+    }
+    $('#confirm-site-verify').text(verifyName)
+    $('.confirm-ui.ui.mini.modal').modal({
+        onApprove: function() {
+            if ($("#confirm-site").val() != verifyName) {
+                alert("输入站点不匹配")
+                ok = false
+                return
+            }
+
+            url = 'savesite?site=' + encodeURIComponent(site)
+            if (typeof newname  === 'string') {
+                if (!isValidDomain(newname)) {
+                    alert("无效的域名\n示例:abc.xyz.com")
+                    return
+                }
+                url = url + '&rename=' + encodeURIComponent(newname)
+                siteData = siteData.replace(new RegExp(site, 'g'), newname)
+                $('#ngx-cfg-view').html(siteData)
+            }
+            $.post(url, siteData, function() {
+                alert("保存成功，测试并加载配置后生效")
+            }).fail(function(data) {
+                ok = false
+                alert(data['responseText'])
+            })
+        }
+    }).modal('show')
+    return ok
 }
 
 function testCfg() {
@@ -70,7 +92,6 @@ function testCfg() {
 
 function reloadCfg() {
     $.get('reloadsite', function(data) {
-        console.log(data)
         alert(data)
     }).fail(function(data) {
         alert(data)
@@ -104,8 +125,62 @@ function isValidDomain(v) {
     return isValid
 }
 
+function renameSite(oldsite, newsite) {
+        if (oldsite === newsite) {
+            return false
+        }
+        if (!isValidDomain(newsite)) {
+            alert("无效的域名\n示例:abc.xyz.com")
+            return false
+        }
+        exsit = false
+        $.each(sites, function(idx, item) {
+            if (item['title'] === newsite) {
+                exsit = true
+            }
+        })
+        if (exsit) {
+            alert("站点已存在")
+            return false
+        }
+        var ok = saveCfg(newsite)
+        if (ok) {
+            $.each(sites, function(idx, item) {
+                if (item['title'] === oldsite) {
+                    item['title'] = newsite
+                }
+            })
+            $('#currentsite').html(newsite)
+            return true
+        }
+        return false
+}
+
+function dbclickRename(selector) {
+    var orival
+    var ok
+    $(selector).on('dblclick', function() {
+        orival = $(this).text()
+        var item = this
+        $('#rename').text(orival)
+        $('.rename-ui.ui.mini.modal').modal({
+            onApprove : function() {
+                var newsite = $('#rename').text()
+                ok = renameSite(orival, newsite)
+                if (ok) {
+                    $(item).text(newsite)
+                }
+            }
+        }).modal('show');
+    })
+}
 
 $(document).ready(function() {
+
+    $.each($('#sites .site').toArray(), function(i, v) {
+        sites[i] = {title: v['innerText']}
+    })
+
     $('.ui.search').search({
         source: sites,
         onSelect: function(result, resp) {
@@ -121,6 +196,8 @@ $(document).ready(function() {
             showCfg(site)
         }
     );
+
+    dbclickRename('#sites .item .site')
 
     $('#create-site').on('click', createSite)
     $('#save-cfg').on('click', saveCfg)

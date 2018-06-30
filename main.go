@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/labstack/echo/middleware"
+
 	"github.com/labstack/echo"
 )
 
@@ -42,7 +44,9 @@ func cmd() {
 }
 
 func InitNgx() {
-	ngx = NewNginx(GloabConfig.Bin, GloabConfig.MainConfig, GloabConfig.SiteConfigDir, GloabConfig.AllowedPorts)
+	ngx = NewNginx(GloabConfig.Bin, GloabConfig.MainConfig,
+		GloabConfig.SiteConfigDir, GloabConfig.BackupDir,
+		GloabConfig.AllowedPorts)
 }
 
 func InitHttp() {
@@ -51,14 +55,21 @@ func InitHttp() {
 	}
 
 	e = echo.New()
+	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		if username == GloabConfig.Auth["name"] && password == GloabConfig.Auth["password"] {
+			return true, nil
+		}
+		return false, nil
+	}))
 	e.Renderer = t
 	e.Static("/static", "views")
 	e.GET("/", index)
 	e.GET("/ping", ping)
 	e.GET("/sitecontent", siteContent)
 	e.POST("/savesite", saveSite)
-	e.GET("testsite", testSite)
-	e.GET("reloadsite", reloadSite)
+	e.GET("/testsite", testSite)
+	e.GET("/reloadsite", reloadSite)
+	e.GET("/createSite", createSite)
 }
 
 func ping(c echo.Context) error {
@@ -98,6 +109,7 @@ func siteContent(c echo.Context) error {
 
 func saveSite(c echo.Context) error {
 	site := c.QueryParam("site")
+	rename := c.QueryParam("rename")
 	content, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
 		return err
@@ -105,6 +117,12 @@ func saveSite(c echo.Context) error {
 	err = ngx.SaveSite(site, content)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	if rename != "" {
+		err = ngx.Rename(site, rename)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 	}
 	return c.JSON(http.StatusOK, "success")
 }
@@ -117,6 +135,13 @@ func testSite(c echo.Context) error {
 func reloadSite(c echo.Context) error {
 	out := ngx.Reload()
 	return c.JSON(http.StatusOK, string(out))
+}
+
+func createSite(c echo.Context) error {
+	site := c.QueryParam("site")
+	return c.Render(http.StatusOK, "newsite.html", map[string]interface{}{
+		"Site": site,
+	})
 }
 
 func init() {

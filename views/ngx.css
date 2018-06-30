@@ -1,0 +1,19 @@
+#main {
+    position: relative;
+}
+
+#left {
+    height: 100%;
+    width: 250px;
+}
+
+#right {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 250px;
+}
+
+pre {
+    white-space: pre-wrap;
+}

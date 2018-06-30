@@ -1,7 +1,9 @@
 {
     "httpaddr": "0.0.0.0:10000",
+    "auth": {"name": "admin", "password": "2018up"},
     "ngxbin": "/usr/local/bin/nginx",
     "ngxMainConfig": "/usr/local/etc/nginx/nginx.conf",
+    "ngxAllowedPorts": ["80", "443"],
     "ngxSiteConfigDir": "playground",
-    "ngxAllowedPorts": ["80", "443"]
+    "ngxBackupDir": "backup"
 }
