@@ -107,9 +107,18 @@ func (ngx *Nginx) SaveSite(site string, data []byte) error {
 	return ioutil.WriteFile(p, data, 0666)
 }
 
-func (ngx *Nginx) Rename(site, newname string) error {
+func (ngx *Nginx) RenameSite(site, newname string, data []byte) error {
 	oldpath := path.Join(ngx.siteConfigDir, site)
 	newpath := path.Join(ngx.siteConfigDir, newname)
+	err := ngx.checkConfig(newname, data)
+	if err != nil {
+		return err
+	}
+	ngx.Backup(site)
+	err = ioutil.WriteFile(oldpath, data, 0666)
+	if err != nil {
+		return err
+	}
 	return os.Rename(oldpath, newpath)
 }
 
@@ -123,13 +132,13 @@ func (ngx *Nginx) checkConfig(site string, data []byte) error {
 			}
 		}
 		if strings.HasPrefix(line, "server_name") {
-			items := strings.Split(line, " ")
+			items := strings.Fields(line)
 			if len(items) != 2 || items[1] != site {
 				return fmt.Errorf("server_name 未正确配置，需要与站点名相同")
 			}
 		}
 		if strings.HasPrefix(line, "listen") {
-			items := strings.Split(line, " ")
+			items := strings.Fields(line)
 			if len(items) != 2 {
 				return fmt.Errorf("listen 未正确配置")
 			}

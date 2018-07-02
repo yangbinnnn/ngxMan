@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
 
 	"github.com/labstack/echo"
 )
@@ -60,7 +61,8 @@ func InitHttp() {
 			return true, nil
 		}
 		return false, nil
-	}))
+	}), middleware.Logger())
+	e.Logger.SetLevel(log.DEBUG)
 	e.Renderer = t
 	e.Static("/static", "views")
 	e.GET("/", index)
@@ -114,14 +116,15 @@ func saveSite(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = ngx.SaveSite(site, content)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
 	if rename != "" {
-		err = ngx.Rename(site, rename)
+		err = ngx.RenameSite(site, rename, content)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+	} else {
+		err = ngx.SaveSite(site, content)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 	}
 	return c.JSON(http.StatusOK, "success")

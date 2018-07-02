@@ -32,8 +32,8 @@ function createSite(e) {
 }
 
 function saveCfg(newname) {
-    var site = $('#currentsite').html()
-    var siteData = $('#ngx-cfg-view').html()
+    var site = $('#currentsite').text()
+    var siteData = $('#ngx-cfg-view').text()
     if (site === '') {
         alert("未选择站点")
         return false
