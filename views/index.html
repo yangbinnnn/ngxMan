@@ -26,9 +26,9 @@
             <div id="sites" class="ui list secondary vertical menu">
                 {{range $index, $ele := .Sites -}}
                     {{if $index -}}
-                    <div class="item">
+                    <div id="{{$ele | wrapSite}}" class="item">
                     {{else}}
-                    <div class="item active">
+                    <div id="{{$ele | wrapSite}}" class="item active">
                     {{- end}}
                     <i class="site linkify icon" style="float: left;">{{$ele}}</i>
                     </div>

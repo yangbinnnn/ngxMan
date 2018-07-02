@@ -28,7 +28,8 @@ function createSite(e) {
         $('#currentsite').html(site)
         myCodeMirror.setValue(data)
         sites.push({title: site})
-        $('#sites').append('<div class="item"><i class="site linkify icon" style="float: left;">' + site + '</i></div>')
+        $('#sites').prepend('<div id="' + tranSite(site) + '" class="item"><i class="site linkify icon" style="float: left;">' + site + '</i></div>')
+        $('#'+tranSite(site)).addClass('active').siblings().removeClass('active');
     })
 }
 
@@ -101,10 +102,16 @@ function reloadCfg() {
 
 function showCfg(site) {
     $.get('sitecontent?site=' + encodeURIComponent(site), function(data) {
+        $('#currentsite').html(site)
+        $('#'+tranSite(site)).addClass('active').siblings().removeClass('active');
         myCodeMirror.setValue(data['content'])
     }).fail(function() {
         alert('fail')
     })
+}
+
+function tranSite(site) {
+    return site.replace(/\./g, '-')
 }
 
 function isValidDomain(v) {
@@ -193,7 +200,6 @@ $(document).ready(function() {
     $('#sites .item').on('click', function() {
             $(this).addClass('active').siblings().removeClass('active');
             var site = $(this).children(".site")[0].innerHTML
-            $('#currentsite').html(site)
             showCfg(site)
         }
     );

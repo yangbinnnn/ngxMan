@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
@@ -50,9 +51,15 @@ func InitNgx() {
 		GloabConfig.AllowedPorts)
 }
 
+func TranSite(s string) string {
+	return strings.Replace(s, ".", "-", -1)
+}
+
 func InitHttp() {
 	t := &Template{
-		templates: template.Must(template.ParseGlob("views/*.html")),
+		templates: template.Must(template.New("").Funcs(template.FuncMap{
+			"tranSite": TranSite,
+		}).ParseGlob("views/*.html")),
 	}
 
 	e = echo.New()
