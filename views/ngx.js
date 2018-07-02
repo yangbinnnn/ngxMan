@@ -1,6 +1,7 @@
 
 var sites = [
 ];
+var myCodeMirror;
 
 function alert(data) {
     $('#alert').html(data)
@@ -25,7 +26,7 @@ function createSite(e) {
     }
     $.get('createSite?site=' + encodeURIComponent(site), function(data) {
         $('#currentsite').html(site)
-        $('#ngx-cfg-view').html(data)
+        myCodeMirror.setValue(data)
         sites.push({title: site})
         $('#sites').append('<div class="item"><i class="site linkify icon" style="float: left;">' + site + '</i></div>')
     })
@@ -33,7 +34,7 @@ function createSite(e) {
 
 function saveCfg(newname) {
     var site = $('#currentsite').text()
-    var siteData = $('#ngx-cfg-view').text()
+    var siteData = myCodeMirror.getValue()
     if (site === '') {
         alert("未选择站点")
         return false
@@ -69,7 +70,7 @@ function saveCfg(newname) {
                 }
                 url = url + '&rename=' + encodeURIComponent(newname)
                 siteData = siteData.replace(new RegExp(site, 'g'), newname)
-                $('#ngx-cfg-view').html(siteData)
+                myCodeMirror.setValue(siteData)
             }
             $.post(url, siteData, function() {
                 alert("保存成功，测试并加载配置后生效")
@@ -100,7 +101,7 @@ function reloadCfg() {
 
 function showCfg(site) {
     $.get('sitecontent?site=' + encodeURIComponent(site), function(data) {
-        $('#ngx-cfg-view').html(data['content'])
+        myCodeMirror.setValue(data['content'])
     }).fail(function() {
         alert('fail')
     })
@@ -203,4 +204,12 @@ $(document).ready(function() {
     $('#save-cfg').on('click', saveCfg)
     $('#test-cfg').on('click', testCfg)
     $('#reload-cfg').on('click', reloadCfg)
+
+    myCodeMirror = CodeMirror.fromTextArea(document.getElementById("ngx-cfg-view"), {
+        lineNumbers: true,
+        theme: 'night',
+        lineWrapping: true,
+        mode: 'nginx',
+    });
+    myCodeMirror.setSize("100%", "700px")
 })

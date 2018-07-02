@@ -5,10 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="static/semantic/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="static/ngx.css">
+    <link rel="stylesheet" type="text/css" href="static/codemirror.min.css">
     <script src="static/semantic/jquery-3.1.1.min.js"></script>
     <script src="static/semantic/semantic.min.js"></script>
-    <script src="static/semantic/highlight.min.js"></script>
     <script src="static/ngx.js"></script>
+    <script src="static/codemirror.min.js"></script>
     <title>Nginx Manager</title>
 </head>
 
@@ -49,7 +50,9 @@
                 <div id="reload-cfg" class="ui basic yellow button">加载配置</div>
             </div>
             <div class="ui segment">
-                <pre contenteditable="true" class="Nginx"><code id="ngx-cfg-view">{{.NgxInfo}}</code></pre>
+                <textarea name="ngx-cfg-view" id="ngx-cfg-view">
+                    {{.NgxInfo}}
+                </textarea>
             </div>
         </div>
     </div>
