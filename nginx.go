@@ -75,6 +75,12 @@ func (ngx *Nginx) SiteConfig() ([]string, error) {
 	}
 	var sites []string
 	for _, site := range files {
+		if site.IsDir() {
+			continue
+		}
+		if strings.HasPrefix(site.Name(), ".") {
+			continue
+		}
 		sites = append(sites, site.Name())
 	}
 	return sites, nil

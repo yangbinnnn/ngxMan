@@ -106,7 +106,7 @@ function showCfg(site) {
         $('#'+tranSite(site)).addClass('active').siblings().removeClass('active');
         myCodeMirror.setValue(data['content'])
     }).fail(function() {
-        alert('fail')
+        alert('获取内容失败')
     })
 }
 

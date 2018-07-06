@@ -13,6 +13,7 @@ type Config struct {
 	AllowedPorts  []string          `json:"ngxAllowedPorts"`
 	HTTPADDR      string            `json:"httpaddr"`
 	Auth          map[string]string `json:"auth"`
+	LogPath       string            `json:"logpath"`
 }
 
 var GloabConfig *Config

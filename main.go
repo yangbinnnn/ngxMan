@@ -62,13 +62,19 @@ func InitHttp() {
 		}).ParseGlob("views/*.html")),
 	}
 
+	logfile, _ := os.OpenFile(GloabConfig.LogPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	tee := io.MultiWriter(os.Stdout, logfile)
+	logconfig := middleware.LoggerConfig{
+		Output: tee,
+	}
+
 	e = echo.New()
 	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 		if username == GloabConfig.Auth["name"] && password == GloabConfig.Auth["password"] {
 			return true, nil
 		}
 		return false, nil
-	}), middleware.Logger())
+	}), middleware.LoggerWithConfig(logconfig))
 	e.Logger.SetLevel(log.DEBUG)
 	e.Renderer = t
 	e.Static("/static", "views")

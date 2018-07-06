@@ -1,5 +1,6 @@
 {
     "httpaddr": "0.0.0.0:10000",
+    "logpath": "ngxman.log",
     "auth": {"name": "admin", "password": "2018up"},
     "ngxbin": "/usr/local/bin/nginx",
     "ngxMainConfig": "/usr/local/etc/nginx/nginx.conf",
