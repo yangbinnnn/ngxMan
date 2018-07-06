@@ -15,7 +15,7 @@ go build -o ngxMan .
 - `logpath` 配置日志路径
 - `auth` 配置登录用户，使用basic auth
 - `ngxbin` 指定nginx 二进制执行路径，当前示例使用`openresty`
-- `ngxManConfig` 指定nginx 主配置文件路径
+- `ngxMainConfig` 指定nginx 主配置文件路径
 - `ngxAllowedPort` 指定需要使用的端口白名单
 - `ngxSiteConfigDir` 指定nginx 站点配置目录路径
 - `ngxBackupDir` 指定配置备份目录路径，需要提前创建，每次保存会做一次配置备份
