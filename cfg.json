@@ -1,10 +1,10 @@
 {
     "httpaddr": "0.0.0.0:10000",
     "logpath": "ngxman.log",
-    "auth": {"name": "admin", "password": "2018up"},
-    "ngxbin": "/usr/local/bin/nginx",
-    "ngxMainConfig": "/usr/local/etc/nginx/nginx.conf",
+    "auth": {"name": "admin", "password": "123456"},
+    "ngxbin": "openresty",
+    "ngxMainConfig": "/usr/local/openresty/nginx/conf/nginx.conf",
     "ngxAllowedPorts": ["80", "443"],
-    "ngxSiteConfigDir": "playground",
-    "ngxBackupDir": "backup"
+    "ngxSiteConfigDir": "/usr/local/openresty/nginx/conf/conf.d",
+    "ngxBackupDir": "/path/to/backup"
 }
