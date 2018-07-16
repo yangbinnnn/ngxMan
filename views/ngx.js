@@ -1,7 +1,75 @@
+function ajax(option) {
+    return new Promise((resolve, reject) => {
+      let xhr = new XMLHttpRequest()
+      xhr.open(option.method || 'GET', option.url)
+      xhr.onload = () => {
+        // let data = JSON.parse(xhr.responseText)
+        resolve(xhr.responseText)
+      }
+      xhr.onerror = error => {
+        reject(error)
+      }
+      xhr.send(option.data ? JSON.stringify(option.data) : null)
+    })
+}
 
-var sites = [
-];
-var myCodeMirror;
+new Vue({
+    el: '#ngxman',
+    data: {
+        sites: [
+            'a.cloudhua.com',
+            'b.cloudhua.com'
+        ],
+        currentSite: '',
+        myCodeMirror: null,
+    },
+    created() {
+        console.log(this.sites)
+        // this.myCodeMirror = CodeMirror.fromTextArea(document.getElementById('ngxcfg'), {
+        //     lineNumbers: true,
+        //     theme: 'night',
+        //     lineWrapping: true,
+        //     mode: 'nginx',
+        // });
+        // this.myCodeMirror.setSize("100%", "700px")
+    },
+    methods: {
+        // createSite: createSite,
+        // saveCfg: saveCfg,
+        // testCfg: testCfg,
+        // reloadCfg: reloadCfg,
+        showCfg: function() {
+            data = 'hello ' + site
+            if (data != null) {
+                this.currentSite = site
+                // this.myCodeMirror.setValue(site)
+            }
+            console.log(this.currentSite)
+            console.log(this.sites)
+            console.log(data)
+        },
+        siteClick: function(site) {
+            this.currentSite = site;
+        }
+    },
+    components: {
+        'site-item': {
+        template: `
+        <div> 
+        <button v-on:click="showCfg(site)">{{ site }}</button>
+        <i class="linkify icon" style="float: left;"></i>
+        </div>
+        `,
+        props: ['site'],
+        methods: {
+            showCfg: function() {
+                // vue.toshow => siteClick(this.site)
+                this.$emit('toshow', this.site);
+            }
+        },
+        },
+    }
+})
 
 function alert(data) {
     $('#alert').html(data)
@@ -9,6 +77,8 @@ function alert(data) {
 }
 
 function createSite(e) {
+    alert('createSite')
+    return
     var site = $('#new-site').val()
     if (!isValidDomain(site)) {
         alert("无效的域名\n示例:abc.xyz.com")
@@ -34,6 +104,7 @@ function createSite(e) {
 }
 
 function saveCfg(newname) {
+    alert('saveCfg')
     var site = $('#currentsite').text()
     var siteData = myCodeMirror.getValue()
     if (site === '') {
@@ -100,7 +171,20 @@ function reloadCfg() {
     })
 }
 
-function showCfg(site) {
+function showCfg1(site) {
+    // data = ajax({
+    //     url: 'sitecontent?site=' + encodeURIComponent(site)
+    // })
+    data = 'hello ' + site
+    if (data != null) {
+        this.currentSite = site
+        // this.myCodeMirror.setValue(site)
+    }
+    console.log(this.currentSite)
+    console.log(this.sites)
+    console.log(data)
+    return
+
     $.get('sitecontent?site=' + encodeURIComponent(site), function(data) {
         $('#currentsite').html(site)
         $('#'+tranSite(site)).addClass('active').siblings().removeClass('active');
@@ -182,40 +266,3 @@ function dbclickRename(selector) {
         }).modal('show');
     })
 }
-
-$(document).ready(function() {
-
-    $.each($('#sites .site').toArray(), function(i, v) {
-        sites[i] = {title: v['innerText']}
-    })
-
-    $('.ui.search').search({
-        source: sites,
-        onSelect: function(result, resp) {
-            var site = result["title"]
-            showCfg(site)
-        }
-    });
-
-    $('#sites .item').on('click', function() {
-            $(this).addClass('active').siblings().removeClass('active');
-            var site = $(this).children(".site")[0].innerHTML
-            showCfg(site)
-        }
-    );
-
-    dbclickRename('#sites .item .site')
-
-    $('#create-site').on('click', createSite)
-    $('#save-cfg').on('click', saveCfg)
-    $('#test-cfg').on('click', testCfg)
-    $('#reload-cfg').on('click', reloadCfg)
-
-    myCodeMirror = CodeMirror.fromTextArea(document.getElementById("ngx-cfg-view"), {
-        lineNumbers: true,
-        theme: 'night',
-        lineWrapping: true,
-        mode: 'nginx',
-    });
-    myCodeMirror.setSize("100%", "700px")
-})
