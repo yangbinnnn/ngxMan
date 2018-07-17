@@ -22,51 +22,32 @@ new Vue({
         ],
         currentSite: '',
         myCodeMirror: null,
+        theme: 'light'
     },
-    created() {
-        console.log(this.sites)
-        // this.myCodeMirror = CodeMirror.fromTextArea(document.getElementById('ngxcfg'), {
-        //     lineNumbers: true,
-        //     theme: 'night',
-        //     lineWrapping: true,
-        //     mode: 'nginx',
-        // });
-        // this.myCodeMirror.setSize("100%", "700px")
+    mounted() {
+        this.myCodeMirror = CodeMirror.fromTextArea(document.getElementById('ngxcfg'), {
+            lineNumbers: true,
+            theme: 'night',
+            lineWrapping: true,
+            mode: 'nginx',
+        });
+        this.myCodeMirror.setSize("100%", "700px")
     },
     methods: {
-        // createSite: createSite,
-        // saveCfg: saveCfg,
-        // testCfg: testCfg,
-        // reloadCfg: reloadCfg,
-        showCfg: function() {
-            data = 'hello ' + site
-            if (data != null) {
-                this.currentSite = site
-                // this.myCodeMirror.setValue(site)
-            }
-            console.log(this.currentSite)
-            console.log(this.sites)
-            console.log(data)
+        showcfg: function(site) {
+            this.currentSite = site
+            this.myCodeMirror.setValue(site)
         },
-        siteClick: function(site) {
-            this.currentSite = site;
-        }
     },
     components: {
         'site-item': {
-        template: `
-        <div> 
-        <button v-on:click="showCfg(site)">{{ site }}</button>
-        <i class="linkify icon" style="float: left;"></i>
-        </div>
-        `,
-        props: ['site'],
-        methods: {
-            showCfg: function() {
-                // vue.toshow => siteClick(this.site)
-                this.$emit('toshow', this.site);
-            }
-        },
+            template: `
+            <div> 
+            <button v-on:click="$emit('showcfg', site)">{{ site }}</button>
+            <i class="linkify icon" style="float: left;"></i>
+            </div>
+            `,
+            props: ['site'],
         },
     }
 })
