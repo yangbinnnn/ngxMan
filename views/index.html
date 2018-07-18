@@ -3,56 +3,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="ngx.css">
     <link rel="stylesheet" type="text/css" href="codemirror.min.css">
+    <link rel="stylesheet" type="text/css" href="iview.css">
     <script src="codemirror.min.js"></script>
-    <script src="semantic/jquery-3.1.1.min.js"></script>
     <script src="vue.min.js"></script>
+    <script src="vue-resource.min.js"></script>
+    <script src="iview.min.js"></script>
 
     <title>Nginx Manager</title>
 </head>
 
 <body>
     <div id="ngxman">
-        <div id="main" class="ui grid">
-            <div id="left" class="three wide column">
-                <div class="ui search">
-                    <div class="ui icon input">
-                        <input class="prompt" type="text" placeholder="搜索站点...">
-                        <i class="search icon"></i>
-                    </div>
-                    <div class="results"></div>
-                </div>
-                <div id="sites" class="ui list secondary vertical menu">
-                    <site-item
-                        v-for="site in sites"
-                        v-bind:site="site"
-                        >
-                    </site-item>
-                </div>
-            </div>
-            <div id="right" class="twelve wide column">
-                <div class="ui clearing segment">
-                <div id="header">
-                        当前站点: <span id="currentsite" v-model="currentSite"></span>
-                        <div id="create-site" class="ui basic green button" style="float: right;">新建站点</div>
-                        <div class="ui input" style="float:right">
-                            <input id="new-site" type="text" placeholder="abc.xyz.com">
-                        </div>
-                </div>
-                </div>
-                <div class="ui three buttons">
-                    <div id="save-cfg" v-on:click="saveCfg" class="ui basic green button">保存配置</div>
-                    <div id="test-cfg" v-on:click="testCfg" class="ui basic red button">测试配置</div>
-                    <div id="reload-cfg" v-on:click="reloadCfg" class="ui basic yellow button">加载配置</div>
-                </div>
-                <div class="ui segment">
-                    <textarea name="ngx-cfg-view" id="ngx-cfg-view">
-                        {{.NgxInfo}}
-                    </textarea>
-                </div>
-            </div>
+        <div class="layout">
+            <Sider width=240 style="position: fixed; height: 100vh; left: 0; overflow: auto;">
+            <row>
+            <i-col>
+                <i-select transfer=true v-model="currentSite" placeholder="搜索站点..." filterable >
+                    <i-option v-for="site in sites" :value="site" :key="site">{{ site }}</i-option>
+                </i-select>
+            </i-col>
+            </row>
+            <hr>
+            <i-menu :theme="theme" active-name="1" @on-select="showsite">
+                <site-item
+                    v-for="site in sites"
+                    v-bind:site="site">
+                </site-item>
+            </i-menu>
+            </Sider>
+            <Layout style="margin-left: 240px">
+                <Header style="height:120px">
+                    <card span=24 style="position: fixed; width:150px; margin-left: 29">
+                        <p slot="title">当前站点</p>
+                        <p>{{currentSite}}</p>
+                    </card>
+                </Header>
+                <Content>
+                    <textarea name="ngxcfg" id="ngxcfg"></textarea>
+                </Content>
+            </Layout>
         </div>
     </div>
     <script src="ngx.js"></script>
