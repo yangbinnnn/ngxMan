@@ -1,6 +1,12 @@
-# ngxMan
+# ngxMan 
+
+> vue + iview 版本，当前版本主要是为了学习vue + iview 的开发
+
+> 当前开发状态: 未完成
 
 nginx 管理服务，提供简单的web 管理功能
+
+
 
 # 编译
 ```
