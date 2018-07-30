@@ -26,9 +26,9 @@
             <div id="sites" class="ui list secondary vertical menu" style="overflow: scroll; height: 100%; width: 252px">
                 {{range $index, $ele := .Sites -}}
                     {{if $index -}}
-                    <div id="{{$ele | wrapSite}}" class="item">
+                    <div id="{{$ele | tranSite}}" class="item">
                     {{else}}
-                    <div id="{{$ele | wrapSite}}" class="item active">
+                    <div id="{{$ele | tranSite}}" class="item active">
                     {{- end}}
                     <span class="site">{{$ele}}</span>
                     <i class="linkify icon" style="float: left;"></i>
