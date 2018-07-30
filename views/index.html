@@ -23,7 +23,7 @@
                 </div>
                 <div class="results"></div>
             </div>
-            <div id="sites" class="ui list secondary vertical menu">
+            <div id="sites" class="ui list secondary vertical menu" style="overflow: scroll; height: 100%; width: 252px">
                 {{range $index, $ele := .Sites -}}
                     {{if $index -}}
                     <div id="{{$ele | wrapSite}}" class="item">
